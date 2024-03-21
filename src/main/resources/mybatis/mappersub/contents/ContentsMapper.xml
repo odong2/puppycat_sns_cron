@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.architecture.admin.models.daosub.contents.ContentsDaoSub">
+    <!-- ==============================================================
+        SETTING
+    =============================================================== -->
+    <!-- database name -->
+    <sql id="database">${databaseRefId}</sql>
+
+    <!-- ==============================================================
+        SELECT
+     =============================================================== -->
+
+    <!-- 인기 게시물 리스트 조회 -->
+   <select id="getPopularList" parameterType="SearchDto" resultType="ContentsDto">
+        SELECT
+           `snco`.`idx`,
+           (CASE WHEN`sncococn`.`comment_cnt` > 0 THEN `sncococn`.`comment_cnt` * ${commentScore} ELSE 0 END) AS `commentScore`,
+           (CASE WHEN `sncolicn`.`like_cnt` > 0 THEN `sncolicn`.`like_cnt` * ${likeScore} ELSE 0 END) AS `likeScore`
+        FROM <include refid="database"/>`sns_contents` AS `snco`
+        INNER JOIN <include refid="database"/>`sns_contents_comment_cnt` AS `sncococn`
+            ON `sncococn`.`contents_idx` = `snco`.`idx`
+        INNER JOIN <include refid="database"/>`sns_contents_like_cnt` AS `sncolicn`
+            ON `sncolicn`.`contents_idx` = `snco`.`idx`
+        WHERE
+                `snco`.`is_keep`    = 0
+            AND `snco`.`state`      = 1
+            AND `snco`.`is_view`    = 1
+            AND `snco`.`reg_date` <![CDATA[ >= ]]> #{date}
+            AND `snco`.`reg_date` <![CDATA[ <= ]]> #{nowDate}
+       ORDER BY `commentScore` + `likeScore` DESC, `snco`.`reg_date` DESC
+   </select>
+
+    <!-- ==============================================================
+        UPDATE
+    =============================================================== -->
+
+
+    <!-- ==============================================================
+        DELETE
+    =============================================================== -->
+
+</mapper>

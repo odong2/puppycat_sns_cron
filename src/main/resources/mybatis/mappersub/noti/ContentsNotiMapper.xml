@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.architecture.admin.models.daosub.noti.ContentsNotiDaoSub">
+    <!-- ==============================================================
+        SETTING
+    =============================================================== -->
+    <!-- database name -->
+    <sql id="database">${databaseRefId}</sql>
+
+    <!-- ==============================================================
+          SELECET
+      =============================================================== -->
+    <!--  컨텐츠 작성자 정보  -->
+    <select id="getContentsWriterInfo" parameterType="long" resultType="ContentsNotiDto">
+        SELECT
+            `snco`.`member_uuid`
+            ,`snco`.`contents`
+            ,`snco`.`reg_date`
+        FROM
+            <include refid="database" />`sns_contents` AS `snco`
+        WHERE
+            `snco`.`idx` = #{contentsIdx}
+    </select>
+
+    <!--  컨텐츠 첫번째 이미지  -->
+    <select id="getContentsImg" parameterType="long" resultType="string">
+        SELECT
+            `sncoim`.`url`
+        FROM
+            <include refid="database" />`sns_contents_img` AS `sncoim`
+        WHERE
+                `sncoim`.`contents_idx` = #{contentsIdx}
+            AND  `sncoim`.`sort` = 1
+            AND  `sncoim`.`state` = 1
+    </select>
+
+
+    <!--  팔로워 리스트 가져오기  -->
+    <select id="getFollowerMember" parameterType="ContentsNotiDto" resultType="String">
+        SELECT
+            `snmefo`.`member_uuid`
+        FROM
+            <include refid="database" />`sns_member_follow` AS `snmefo`
+        WHERE
+                    `snmefo`.`follow_uuid` = #{memberUuid}
+            <if test="regDate != null and regDate != ''">
+                AND `snmefo`.`reg_date` <![CDATA[ <= ]]> #{regDate}
+            </if>
+                AND `snmefo`.`state` = 1
+    </select>
+
+    <!-- ==============================================================
+        UPDATE
+    =============================================================== -->
+    <!-- ==============================================================
+        DELETE
+    =============================================================== -->
+</mapper>

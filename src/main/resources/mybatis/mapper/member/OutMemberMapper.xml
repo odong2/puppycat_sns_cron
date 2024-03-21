@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.architecture.admin.models.dao.member.OutMemberDao">
+    <!-- ==============================================================
+        SETTING
+    =============================================================== -->
+    <!-- database name -->
+    <sql id="database">${databaseRefId}</sql>
+
+    <!-- ==============================================================
+        UPDATE
+    =============================================================== -->
+    <update id="updateDelMember" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`puppycat_member`
+        <set>
+            `state`  = 9,
+            `is_del` = 9
+        </set>
+        WHERE
+            `uuid`   = #{uuid}
+        AND
+            `state` = 1
+        AND
+            `is_del` = 1
+        LIMIT 1
+    </update>
+
+    <update id="updateDelMemberApp" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`puppycat_member_app`
+        <set>
+            `state` = 0
+        </set>
+        WHERE
+            `member_uuid` = #{uuid}
+        AND
+            `state` = 1
+    </update>
+
+    <update id="updateDelMemberOut" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`puppycat_member_out`
+        <set>
+            `state`       = 1,
+            `out_date`    = #{outDate},
+            `out_date_tz` = '${convertTZ}',
+        </set>
+        WHERE
+            `uuid` = #{uuid}
+        AND
+            `state` = 2
+        LIMIT 1
+    </update>
+
+    <!-- 탈퇴 상태 업데이트 (state : 2 -> 1, 탈퇴확정일 등록) -->
+    <update id="updateOutState" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`puppycat_member_app`
+        <set>
+            `state` = 0
+        </set>
+        WHERE
+            `member_uuid` = #{memberUuid}
+        LIMIT 1
+    </update>
+
+    <!-- 콘텐츠 코멘트 cnt 차감 -->
+    <update id="updateContentsCommentCnt" parameterType="_int">
+        UPDATE <include refid="database" />`sns_contents_comment_cnt`
+        <set>
+            `comment_cnt` = `comment_cnt` - 1
+        </set>
+        WHERE `contents_idx` IN (
+        <foreach collection="list" item="item" open="" close="" separator=",">
+            #{item}
+        </foreach>
+        )
+    </update>
+
+    <!-- 콘텐츠 좋아요 cnt 차감 -->
+    <update id="updateContentsLikeCnt" parameterType="_int">
+        UPDATE <include refid="database" />`sns_contents_like_cnt`
+        <set>
+            `like_cnt` = `like_cnt` - 1
+        </set>
+        WHERE `contents_idx` IN (
+        <foreach collection="list" item="item" open="" close="" separator=",">
+            #{item}
+        </foreach>
+        )
+    </update>
+
+    <!-- 댓글 좋아요 cnt 차감 -->
+    <update id="updateCommentLikeCnt" parameterType="_int">
+        UPDATE <include refid="database" />`sns_contents_comment_like_cnt`
+        <set>
+            `like_cnt`       = `like_cnt` - 1
+        </set>
+        WHERE `comment_idx` IN (
+        <foreach collection="list" item="item" open="" close="" separator=",">
+             #{item}
+        </foreach>
+        )
+    </update>
+
+    <!-- 콘텐츠 저장 cnt 차감 -->
+    <update id="updateContentsSaveCnt" parameterType="_int">
+        UPDATE <include refid="database" />`sns_contents_save_cnt`
+        <set>
+            `save_cnt`  = `save_cnt` - 1
+        </set>
+        WHERE
+        <foreach collection="list" item="item" open="" close="" separator="OR">
+            `contents_idx` = #{item}
+        </foreach>
+    </update>
+
+    <!-- 댓글 cnt 차감 -->
+    <update id="updateCommentCnt" parameterType="_int">
+        UPDATE <include refid="database" />`sns_contents_comment_cnt`
+        <set>
+            `comment_cnt`  = `comment_cnt` - 1
+        </set>
+        WHERE
+        <foreach collection="list" item="item" open="" close="" separator="OR">
+            `contents_idx` = #{item}
+        </foreach>
+    </update>
+
+    <!-- 댓글 좋아요 삭제 -->
+    <update id="deleteCommentLike" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`sns_contents_comment_like`
+        <set>
+            `state` = 0
+        </set>
+        WHERE
+            `member_uuid` = #{uuid}
+        AND
+            `state` = 1
+    </update>
+
+    <!-- 컨텐츠 좋아요 삭제 -->
+    <update id="deleteContentsLike" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`sns_contents_like`
+        <set>
+            `state` = 0
+        </set>
+        WHERE
+            `member_uuid` = #{uuid}
+        AND
+            `state` = 1
+    </update>
+
+    <!-- 댓글 신고 삭제 -->
+    <update id="deleteCommentReport" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`sns_contents_comment_report`
+        <set>
+            `state` = 0
+        </set>
+        WHERE
+            `member_uuid` = #{uuid}
+        AND
+        `state` = 1
+    </update>
+
+    <!-- 콘텐츠 신고 삭제 -->
+    <update id="deleteContentsReport" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`sns_contents_report`
+        <set>
+            `state` = 0
+        </set>
+        WHERE
+            `member_uuid` = #{uuid}
+        AND
+            `state` = 1
+    </update>
+
+    <!-- 내가 팔로우한거 업데이트-->
+    <update id="deleteMemberFollow" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`sns_member_follow`
+        <set>
+            `state` = 0
+        </set>
+        WHERE
+            `member_uuid` = #{uuid}
+        AND
+            `state` = 1
+    </update>
+
+    <!-- 나를 팔로우한거 업데이트-->
+    <update id="deleteMemberFollowMe" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`sns_member_follow`
+        <set>
+            `state` = 0
+        </set>
+        WHERE
+            `follow_uuid` = #{uuid}
+        AND
+            `state` = 1
+    </update>
+
+    <!-- 회원 팔로우 cnt 삭제 -->
+    <update id="deleteMemberFollowCnt" parameterType="java.util.List">
+        UPDATE <include refid="database" />`sns_member_follow_cnt`
+        <set>
+            `follower_cnt`  = `follower_cnt` - 1
+        </set>
+        WHERE `member_uuid` IN (
+        <foreach collection="list" item="item" open="" close="" separator=",">
+            #{item}
+        </foreach>
+        )
+    </update>
+
+    <!-- 회원 팔로우 cnt 삭제 -->
+    <update id="deleteMemberFollowMeCnt" parameterType="java.util.List">
+        UPDATE <include refid="database" />`sns_member_follow_cnt`
+        <set>
+            `follow_cnt`  = `follow_cnt` - 1
+        </set>
+        WHERE `member_uuid` IN (
+        <foreach collection="list" item="item" open="" close="" separator=",">
+            #{item}
+        </foreach>
+        )
+    </update>
+
+    <update id="deleteMyMemberFollowFollowerCnt" parameterType="OutMemberDto">
+        UPDATE <include refid="database" />`sns_member_follow_cnt`
+        <set>
+            `follower_cnt`  = 0,
+            `follow_cnt` = 0
+        </set>
+        WHERE
+            `member_uuid` = #{uuid}
+    </update>
+</mapper>

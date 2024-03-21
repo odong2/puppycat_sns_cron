@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.architecture.admin.models.dao.contents.ContentsDao">
+    <!-- ==============================================================
+        SETTING
+    =============================================================== -->
+    <!-- database name -->
+    <sql id="database">${databaseRefId}</sql>
+
+    <!-- ==============================================================
+        SELECT
+     =============================================================== -->
+
+    <!-- ==============================================================
+        INSERT
+    =============================================================== -->
+
+    <!-- 인기 게시물 등록 -->
+    <insert id="insertWeekPopularList" parameterType="ContentsDto">
+        INSERT INTO <include refid="database" />`sns_contents_week_popular`
+        (
+            `rank`,
+            `contents_idx`
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.rank},
+            #{item.idx}
+        )
+        </foreach>
+    </insert>
+
+    <!-- 급상승 인기 게시물 등록 -->
+    <insert id="insertHourPopularList" parameterType="ContentsDto">
+        INSERT INTO <include refid="database" />`sns_contents_hour_popular`
+        (
+            `rank`,
+            `contents_idx`
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.rank},
+            #{item.idx}
+        )
+        </foreach>
+    </insert>
+
+    <!-- ==============================================================
+        UPDATE
+    =============================================================== -->
+    <!-- 컨텐츠 삭제 -->
+    <update id="updateDelContentsState" parameterType="String" keyProperty="affectedRow" >
+        UPDATE
+            <include refid="database" />`sns_contents`
+        SET
+            `state`  = 0
+        WHERE
+            `member_uuid` = #{memberUuid}
+    </update>
+
+    <!-- ==============================================================
+        DELETE
+    =============================================================== -->
+
+    <!-- 인기 게시물 삭제 -->
+   <delete id="deleteWeekPopularContents">
+       DELETE FROM <include refid="database"/>`sns_contents_week_popular`
+   </delete>
+
+    <!-- 급상승 인기 게시물 삭제 -->
+    <delete id="deleteHourPopularContents">
+        DELETE FROM <include refid="database"/>`sns_contents_hour_popular`
+    </delete>
+
+
+</mapper>

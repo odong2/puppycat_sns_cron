@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.architecture.admin.models.daosub.member.OutMemberDaoSub">
+    <!-- ==============================================================
+        SETTING
+    =============================================================== -->
+    <!-- database name -->
+    <sql id="database">${databaseRefId}</sql>
+
+    <!-- ==============================================================
+        SELECT
+    =============================================================== -->
+    <!-- 탈퇴 대기 리스트 가져오기 -->
+    <select id="getOutMember" parameterType="String" resultType="OutMemberDto">
+        SELECT
+        `snmeou`.`member_idx`,
+        `snmeou`.`is_simple`
+        FROM
+        <include refid="database" />`sns_member_out` AS `snmeou`
+        WHERE
+        `snmeou`.`state` = 2
+        AND `snmeou`.`out_reg_date` <![CDATA[ < ]]> #{date}
+        LIMIT 2000
+    </select>
+
+    <!-- 간편가입 정보 조회하기 -->
+    <select id="getSimpleInfo" parameterType="OutMemberDto" resultType="MemberDto">
+        SELECT
+        `snemsi`.`simple_type`,
+        `snemsi`.`auth_token`
+        FROM
+        <include refid="database" />`sns_member_simple` AS `snemsi`
+        WHERE
+        `snemsi`.`member_uuid` = #{uuid}
+        LIMIT 2000
+    </select>
+
+    <!-- 콘텐츠 신고 내역 가져오기 -->
+    <select id="selectContentsReport" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `sncore`.`idx`
+        FROM
+            <include refid="database"/>`sns_contents_report` AS `sncore`
+        WHERE
+            `sncore`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 댓글 신고 내역 가져오기 -->
+    <select id="selectCommentReport" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `sncocore`.`idx`
+        FROM
+            <include refid="database"/>`sns_contents_comment_report` AS `sncocore`
+        WHERE
+            `sncocore`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 콘텐츠 좋아요 내역 가져오기 -->
+    <select id="selectContentsLike" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `sncoli`.`idx`
+        FROM
+            <include refid="database"/>`sns_contents_like` AS `sncoli`
+        WHERE
+            `sncoli`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 댓글 좋아요 내역 가져오기 -->
+    <select id="selectCommentLike" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `sncocoli`.`idx`
+        FROM
+            <include refid="database"/>`sns_contents_comment_like` AS `sncocoli`
+        WHERE
+            `sncocoli`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 좋아요한 콘텐츠 idx 가져오기 -->
+    <select id="selectContentsIdxLike" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `sncoli`.`contents_idx`
+        FROM
+            <include refid="database"/>`sns_contents_like` AS `sncoli`
+        WHERE
+            `sncoli`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 좋아요한 댓글 idx 가져오기 -->
+    <select id="selectCommentIdxLike" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `sncocoli`.`comment_idx`
+        FROM
+            <include refid="database"/>`sns_contents_comment_like` AS `sncocoli`
+        WHERE
+            `sncocoli`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 저장한 콘텐츠 idx 가져오기 -->
+    <select id="selectSaveContentsIdx" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `sncosa`.`contents_idx`
+        FROM
+            <include refid="database"/>`sns_contents_save` AS `sncosa`
+        WHERE
+            `sncosa`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 작성한 콘텐츠 idx 가져오기 -->
+    <select id="selectMyContentsIdx" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `snco`.`idx`
+        FROM
+            <include refid="database"/>`sns_contents` AS `snco`
+        WHERE
+            `snco`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 작성한 댓글 idx 가져오기 -->
+    <select id="selectMyCommentIdx" parameterType="OutMemberDto" resultType="_long">
+        SELECT
+            `sncoco`.`idx`
+        FROM
+            <include refid="database"/>`sns_contents_comment` AS `sncoco`
+        WHERE
+            `sncoco`.`member_uuid` = #{uuid}
+    </select>
+
+    <!-- 내가 팔로우 한 사람 member uuid 가져오기 -->
+    <select id="getFollowMemberUuidList" parameterType="OutMemberDto" resultType="String">
+        SELECT
+            `snmefo`.`follow_uuid`
+        FROM
+            <include refid="database"/>`sns_member_follow` AS `snmefo`
+        WHERE
+            `snmefo`.`member_uuid` = #{uuid}
+        AND
+            `snmefo`.`state` = 1
+    </select>
+
+    <!-- 나를 팔로우 한 사람 member uuid 가져오기 -->
+    <select id="getFollowMeMemberUuidList" parameterType="OutMemberDto" resultType="String">
+        SELECT
+            `snmefo`.`member_uuid`
+        FROM
+            <include refid="database"/>`sns_member_follow` AS `snmefo`
+        WHERE
+            `snmefo`.`follow_uuid` = #{uuid}
+        AND
+            `snmefo`.`state` = 1
+    </select>
+</mapper>

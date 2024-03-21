@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.architecture.admin.models.dao.search.SearchLogDao">
+    <!-- ==============================================================
+        SETTING
+    =============================================================== -->
+    <!-- database name -->
+    <sql id="database">${databaseRefId}</sql>
+
+    <!-- ==============================================================
+        SELECT
+     =============================================================== -->
+    <!-- ==============================================================
+        DELETE
+    =============================================================== -->
+    <!-- sns_search_log 삭제 -->
+    <delete id="deleteSearchLog" parameterType="string">
+        DELETE FROM <include refid="database" />`sns_search_log`
+        WHERE
+            `reg_date` <![CDATA[ <= ]]> #{date}
+    </delete>
+
+</mapper>
